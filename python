@@ -1,1 +1,66 @@
 
+$ nohup python -u test.py > out.log 2>&1 &
+
+ CUDA_VISIBLE_DEVICES=1 python src/embedding_clustering.py --model DeepWalk
+
+ps -ef | grep python
+kill -9 25374
+
+python NGCF.py --dataset gowalla --regs [1e-5] --embed_size 64 --layer_size [64,64,64] --lr 0.0001 --save_flag 1 --pretrain 0 --batch_size 1024 --epoch 400 --verbose 1 --node_dropout [0.1] --mess_dropout [0.1,0.1,0.1]
+
+ nohup python evaluate_models.py graphs/associative_n=400_k=5/test > out.log 2>&1 &
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+./run_graphsaint.sh reddit train_config/table2/reddit2_e.yml --gpu 0
+./run_graphsaint.sh reddit train_config/explore/reddit4_jk_e.yml --gpu 0
+./run_graphsaint.sh ppi-large train_config/explore/ppi-large_5.yml --gpu 1
+
+nohup python  cluster_dgi.py > reddit_1300_512_dgi.log 2>&1 &
+
+////////////////////////////
+
+import numpy as np
+import random
+
+def setup_seed(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+
+
+# 设置随机数种子
+setup_seed(19960812323)
+///////////////////////////////////
+
+ #服务器上调用tensorboard，参考tensorboardX官方提供的demo.py
+from tensorboardX import SummaryWriter
+writer = SummaryWriter()
+...
+writer.add_scalar
+writer.add_audio
+writer.add_image
+writer.add_text
+writer.add_graph
+writer.add_embedding
+
+#首先使用ssh登陆服务器并转发端口
+ssh -L 6006:127.0.0.1:6006 pengyue@10.1.2.200
+(ssh -L 本地端口:本地IP:远程端口 远程服务器用户名@远程服务器Ip)
+
+#在服务器上运行tensorboard
+tensorboard --logdir=./runs
+
+#在本机地址运行
+http://127.0.0.1:6006
+
+
+https://tensorboardx.readthedocs.io/en/latest/tutorial.html
+ssh -L 16007:127.0.0.1:6007 wangjialin@162.105.86.xx 
+ssh -L 16006:127.0.0.1:6006 wangjialin@162.105.86.xx 
+
+/////////////////////////////
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+
+CUDA_VISIBLE_DEVICES=1 python my_script.py
